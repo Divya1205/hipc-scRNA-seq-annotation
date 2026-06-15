@@ -1,0 +1,16 @@
+data/
+*.h5ad
+submission/*.tsv
+Geneformer/
+*.bin
+*.safetensors
+*.pt
+*.ckpt
+figures/
+eval/
+*.png
+__pycache__/
+*.pyc
+.DS_Store
+*.log
+.ipynb_checkpoints/
