@@ -14,3 +14,4 @@ __pycache__/
 .DS_Store
 *.log
 .ipynb_checkpoints/
+00_setup_env.sh
