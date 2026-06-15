@@ -147,4 +147,4 @@ land in `eval/`, QC figures in `figures/`.
 
 ## License
 
-See [LICENSE](https://claude.ai/chat/LICENSE).
+This project is released under the MIT License. See [LICENSE](LICENSE) for details.
