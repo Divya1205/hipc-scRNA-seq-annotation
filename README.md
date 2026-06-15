@@ -40,7 +40,7 @@ All models are used **pre-trained** (no fine-tuning).
 
 ## Method (pipeline order)
 
-1. **01_qc_normalize** — drop CITE-seq/ADT protein features if present; locate
+1. **01_qc_normalize** drop CITE-seq/ADT protein features if present; locate
    raw counts (a `counts` layer, else `.raw`, else integer `.X`);
    `normalize_total(1e4)` + `log1p`; 3000 highly variable genes
    (`seurat_v3`, falling back to `seurat`); PCA(50) on scaled HVGs; Harmony
@@ -48,29 +48,29 @@ All models are used **pre-trained** (no fine-tuning).
    **retained** . Cell filtering is **off by default** — every barcode is kept
    (an opt-in `--allow_cell_filtering` flag exists but is not used for
    submissions).
-2. **02_coarse_cluster** — neighbors + Leiden (res 0.4) on the Harmony
+2. **02_coarse_cluster** neighbors + Leiden (res 0.4) on the Harmony
    embedding -> coarse lineage clusters (`leiden_coarse`).
-3. **03_local_rpca** — Robust PCA (`X = L + S`) per cluster on (a) the HVG
+3. **03_local_rpca** Robust PCA (`X = L + S`) per cluster on (a) the HVG
    log-expression -> `lognorm_L`, and (b) the Harmony PCA embedding ->
    `X_pca_harmony_L`. The row-norm of `S` gives a per-cell outlier z-score.
-4. **03b_foundation_embed** — Geneformer (V1-10M) per-cell embedding via a
+4. **03b_foundation_embed** Geneformer (V1-10M) per-cell embedding via a
    manual MPS/CPU forward pass (avoids Geneformer's CUDA-only EmbExtractor),
    then Robust PCA on the embedding per cluster -> `X_geneformer_L`.
    *(primary methodological contribution)*
-5. **03c_scgpt_embed** — optional scGPT embedding + RPCA, a third independent
+5. **03c_scgpt_embed** optional scGPT embedding + RPCA, a third independent
    annotator. Self-skips if scGPT/flash-attn isn't installed.
-6. **04_annotate** — CellTypist (`Immune_All_Low`, majority voting) on both the
+6. **04_annotate** CellTypist (`Immune_All_Low`, majority voting) on both the
    raw and RPCA-denoised expression; per-cell confidence from the probability
    matrix.
-7. **04b_embed_annotate** — kNN label transfer in each denoised embedding,
+7. **04b_embed_annotate** kNN label transfer in each denoised embedding,
    seeded from high-confidence CellTypist labels; a confidence-weighted vote
    reconciles the annotators into `ensemble_label` (+ a disagreement flag).
-8. **05_ontology_map** — map the ensemble label to the 39-term HIPC ontology
+8. **05_ontology_map** map the ensemble label to the 39-term HIPC ontology
    via an alias table and case-insensitive match; for low-confidence,
    high-outlier, or disagreement cells, climb the hierarchy one level (parent)
    or two (grandparent); write the submission TSV. Unmappable labels fall back
    to a root term rather than being left unassigned.
-9. **06_evaluate / 07_marker_validation** — supervised metrics when ground
+9. **06_evaluate / 07_marker_validation** supervised metrics when ground
    truth is supplied, otherwise internal agreement/silhouette; plus
    marker-enrichment QC. No ground truth is required.
 
